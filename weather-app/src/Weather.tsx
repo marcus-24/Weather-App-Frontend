@@ -1,21 +1,32 @@
 import React, { useState, useEffect } from "react";
+import IWeather from "./interfaces";
 
 // https://hackr.io/blog/react-projects
 // https://medium.com/@oadaramola/a-pitfall-i-almost-fell-into-d1d3461b2fb8
 // https://stackoverflow.com/questions/52770661/get-latitude-and-longitude-from-zip-code-javascript
 // https://medium.com/@c_yatteau/how-to-find-address-coordinates-using-node-js-93ac860361f0
 const API_KEY: any = process.env.REACT_APP_GEOCODE_API_KEY; //TODO: Find typehint for this
+const inputStyle = { color: "gray" };
 
-interface IWeather {
-  [weather: string]: string;
+function WeatherItem({ item }: { item: IWeather }) {
+  return (
+    <div className="weather-box">
+      <img src={item.icon} alt={`Forecast for ${item.name}`} />
+      <figcaption>
+        <p>{item.name}</p>
+        <p>
+          {item.temperature} °{item.temperatureUnit}
+        </p>
+        <p>{item.shortForecast}</p>
+      </figcaption>
+    </div>
+  );
 }
 
-// function WeatherItem({ data }) {}
-
 export default function WeatherComp() {
-  const [weather, setWeather] = useState<IWeather>();
+  const [weather, setWeather] = useState<IWeather[]>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [city, setCity] = useState<string>("Boston");
+  const [city, setCity] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
 
   useEffect(() => {
@@ -41,7 +52,6 @@ export default function WeatherComp() {
         const forecast_resp = await fetch(forecast_url);
         const forecast_json = await forecast_resp.json();
         if (!ignore) {
-          // console.log(forecast_json["properties"]["periods"]);
           setWeather(forecast_json["properties"]["periods"]);
           console.log(weather);
         }
@@ -52,12 +62,15 @@ export default function WeatherComp() {
       }
     };
 
-    fetchData();
+    if (city) {
+      fetchData();
+    }
 
     /*Return cleanup function */
     return () => {
       ignore = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city]);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -66,7 +79,6 @@ export default function WeatherComp() {
       "city"
     ) as HTMLInputElement)!.value; // "!" shows you know that city element exists in DOM & need to cast as HTMLElement
     setCity(city_val);
-    console.log(city);
   };
 
   if (isLoading) {
@@ -81,11 +93,24 @@ export default function WeatherComp() {
     <>
       <h1>7-Day Forecast</h1>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="city">City: </label>
-        <input type="text" id="city" name="city" />
+        <input
+          type="text"
+          id="city"
+          name="city"
+          placeholder="Enter city name"
+          style={inputStyle}
+        />
 
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Search" />
       </form>
+      {city && <h2>{city}</h2>}
+      {weather && (
+        <>
+          {weather.map((item) => (
+            <WeatherItem item={item} />
+          ))}
+        </>
+      )}
     </>
   );
 }
