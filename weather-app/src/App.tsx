@@ -7,7 +7,7 @@ function App() {
   return (
     <>
       <header className="App-header">
-        <h1>My First Website</h1>
+        <h1>Marcus' Weather App</h1>
       </header>
       <section className="App-section">
         <WeatherComp />
