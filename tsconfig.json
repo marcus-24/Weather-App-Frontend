@@ -16,5 +16,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "src/Weather.tsx"]
+  "include": ["src", "src/WeatherComp/Weather.tsx"]
 }

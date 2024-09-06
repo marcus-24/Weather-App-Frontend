@@ -1,5 +1,5 @@
 import "./App.css";
-import WeatherComp from "./Weather";
+import { WeatherComp } from "./WeatherComp/Weather";
 
 // https://medium.com/@kamindugayantha/getting-started-with-typescript-in-react-a-comprehensive-guide-650e73a4d84a
 

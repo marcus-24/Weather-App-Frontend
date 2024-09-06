@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { IWeather, JSONObject, StateProps } from "./interfaces";
+import { IWeather, JSONObject } from "../interfaces";
+import { WeatherElement } from "../WeatherElement";
 
 // https://hackr.io/blog/react-projects
 // https://medium.com/@oadaramola/a-pitfall-i-almost-fell-into-d1d3461b2fb8
@@ -8,66 +9,7 @@ import { IWeather, JSONObject, StateProps } from "./interfaces";
 const API_KEY: string | undefined = process.env.REACT_APP_GEOCODE_API_KEY;
 const THRESHOLD: number = 0.7;
 
-function get_unique_dates(weather: IWeather[]): Array<string> {
-  const start_dates: Array<string> = Array.from(
-    weather,
-    (item) => item.startTime.split("T")[0]
-  ); //extract start times from IWeather objects
-  const unique_start_dates: Array<string> = Array.from(new Set(start_dates)); // extract unique dates
-  return unique_start_dates;
-}
-
-function WeatherElement(props: StateProps): any {
-  //todo: get type for return
-
-  const unique_start_dates: Array<string> = get_unique_dates(props.weather);
-
-  let content: any = [];
-
-  unique_start_dates.forEach((date) => {
-    let weather_vals: IWeather[] = props.weather.filter((item) =>
-      item.startTime.includes(date)
-    ); // get all IWeather objects with the same start dates (day and night values)
-    console.log(`Weather vals = ${weather_vals}`);
-    content.push(<DayElement vals={weather_vals} />);
-  });
-
-  if (props.errorMsg) {
-    return <>{props.errorMsg}</>;
-  } else {
-    return (
-      <>
-        {props.city && <h2>{props.city} Weather</h2>}
-        {content}
-      </>
-    );
-  }
-}
-
-function DayElement({ vals }: { vals: IWeather[] }) {
-  return (
-    <div className="weather-box">
-      {vals.map((val) => (
-        <div className="imgContainer" key={val.name}>
-          <img
-            className="imgstyle"
-            src={val.icon}
-            alt={`Forecast for ${val.name}`}
-          />
-          <figcaption className="captionstyle">
-            <p>{val.name}</p>
-            <p>
-              {val.temperature}°{val.temperatureUnit}
-            </p>
-            <p>{val.shortForecast}</p>
-          </figcaption>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-async function fetch_content(url: string): Promise<JSONObject> {
+export async function fetch_content(url: string): Promise<JSONObject> {
   const response = await fetch(url);
   if (response.ok) {
     return await response.json();
@@ -76,14 +18,14 @@ async function fetch_content(url: string): Promise<JSONObject> {
   }
 }
 
-function get_coordinates(geocode: JSONObject): Array<string> {
+export function get_coordinates(geocode: JSONObject): Array<string> {
   const latitude: string = geocode[0]["lat"];
   const longtitude: string = geocode[0]["lon"];
 
   return [latitude, longtitude];
 }
 
-export default function WeatherComp() {
+export function WeatherComp() {
   const [weather, setWeather] = useState<IWeather[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [city, setCity] = useState<string>("");
