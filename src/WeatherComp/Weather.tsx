@@ -24,11 +24,9 @@ export function get_coordinates(geocode: JSONObject): Array<string> {
 
   return [latitude, longtitude];
 }
-
-export function WeatherComp() {
+function useGetData(city: string): Array<any> {
   const [weather, setWeather] = useState<IWeather[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [city, setCity] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
 
   useEffect(() => {
@@ -82,6 +80,15 @@ export function WeatherComp() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city]);
+
+  return [weather, isLoading, errorMsg];
+}
+
+export function WeatherComp() {
+  //@todo: https://legacy.reactjs.org/docs/hooks-custom.html#extracting-a-custom-hook
+
+  const [city, setCity] = useState<string>("");
+  const [weather, isLoading, errorMsg] = useGetData(city);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
