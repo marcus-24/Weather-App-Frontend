@@ -11,8 +11,12 @@ export function get_unique_dates(weather: IWeather[]): Array<string> {
   return unique_start_dates;
 }
 
-export function WeatherElement(props: StateProps): any {
+export function WeatherResults(props: StateProps): any {
   //todo: get type for return
+
+  if (props.errorMsg) <>{props.errorMsg}</>;
+
+  if (!(props.weather && props.city)) return <></>;
 
   const unique_start_dates: Array<string> = get_unique_dates(props.weather);
 
@@ -25,14 +29,10 @@ export function WeatherElement(props: StateProps): any {
     content.push(<DayElement vals={weather_vals} />);
   });
 
-  if (props.errorMsg) {
-    return <>{props.errorMsg}</>;
-  } else {
-    return (
-      <>
-        {props.city && <h2>{props.city} Weather</h2>}
-        {content}
-      </>
-    );
-  }
+  return (
+    <>
+      <h2>{props.city} Weather</h2>
+      {content}
+    </>
+  );
 }

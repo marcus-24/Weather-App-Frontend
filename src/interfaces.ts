@@ -26,3 +26,7 @@ export interface StateProps {
   city: string;
   weather: IWeather[];
 }
+
+export interface FormProps {
+  setCity: React.Dispatch<React.SetStateAction<string>>;
+}

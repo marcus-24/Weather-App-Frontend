@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { IWeather, JSONObject } from "../interfaces";
-import { WeatherElement } from "../WeatherElement";
+import { IWeather, JSONObject, FormProps } from "../interfaces";
+import { WeatherResults } from "../WeatherResults";
+// import { useQuery } from "react-query";
 
 // https://hackr.io/blog/react-projects
 // https://medium.com/@oadaramola/a-pitfall-i-almost-fell-into-d1d3461b2fb8
@@ -24,7 +25,17 @@ export function get_coordinates(geocode: JSONObject): Array<string> {
 
   return [latitude, longtitude];
 }
+
+const retrieveData = async (url: string) => {
+  //todo: replace fetch with axios function.
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
 function useGetData(city: string): Array<any> {
+  //@todo: refactor to React Query: https://www.youtube.com/watch?v=novnyCaa7To&ab_channel=Fireship
+  // https://refine.dev/blog/react-query-guide/#introduction
   const [weather, setWeather] = useState<IWeather[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -84,42 +95,40 @@ function useGetData(city: string): Array<any> {
   return [weather, isLoading, errorMsg];
 }
 
-export function WeatherComp() {
-  //@todo: https://legacy.reactjs.org/docs/hooks-custom.html#extracting-a-custom-hook
-
-  const [city, setCity] = useState<string>("");
-  const [weather, isLoading, errorMsg] = useGetData(city);
-
+function CitySubmitForm({ setCity }: FormProps): any {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const city_val: string = (document.getElementById(
       "form-submit-text"
     ) as HTMLInputElement)!.value; // "!" shows you know that city element exists in DOM & need to cast as HTMLElement
     setCity(city_val);
-    console.log(city);
   };
 
-  if (isLoading) {
-    return <>Loading...</>;
-  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        id="form-submit-text"
+        name="form-submit-text"
+        placeholder="Enter city name"
+      />
+
+      <input type="submit" value="Search" />
+    </form>
+  );
+}
+
+export function WeatherComp() {
+  const [city, setCity] = useState<string>("");
+  const [weather, isLoading, errorMsg] = useGetData(city);
+
+  if (isLoading) return <>Loading...</>;
 
   return (
     <>
       <h1>7-Day Forecast</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          id="form-submit-text"
-          name="form-submit-text"
-          placeholder="Enter city name"
-        />
-
-        <input type="submit" value="Search" />
-      </form>
-
-      {city && weather && (
-        <WeatherElement errorMsg={errorMsg} city={city} weather={weather} />
-      )}
+      <CitySubmitForm setCity={setCity} />
+      <WeatherResults errorMsg={errorMsg} city={city} weather={weather} />
     </>
   );
 }
