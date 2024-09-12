@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IWeather, JSONObject, FormProps } from "../interfaces";
 import { WeatherResults } from "../WeatherResults";
-// import { useQuery } from "react-query";
+import { useQuery } from "react-query";
 
 // https://hackr.io/blog/react-projects
 // https://medium.com/@oadaramola/a-pitfall-i-almost-fell-into-d1d3461b2fb8
@@ -26,74 +26,29 @@ export function get_coordinates(geocode: JSONObject): Array<string> {
   return [latitude, longtitude];
 }
 
-const retrieveData = async (url: string) => {
+const retrieveGeocodeUrl = async (
+  url: string,
+  setWeatherUrl: React.Dispatch<React.SetStateAction<string>>
+) => {
   //todo: replace fetch with axios function.
-  const response = await fetch(url);
-  const data = await response.json();
-  return data;
+  const geocode_json = await fetch_content(url);
+
+  const [latitude, longitude] = get_coordinates(geocode_json);
+  const weather_url: string = `https://api.weather.gov/points/${latitude},${longitude}`; // todo: make input to function
+  const importance_score: number = geocode_json[0]["importance"];
+  setWeatherUrl(importance_score > THRESHOLD ? weather_url : "");
 };
 
-function useGetData(city: string): Array<any> {
-  //@todo: refactor to React Query: https://www.youtube.com/watch?v=novnyCaa7To&ab_channel=Fireship
-  // https://refine.dev/blog/react-query-guide/#introduction
-  const [weather, setWeather] = useState<IWeather[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>("");
-
-  useEffect(() => {
-    let ignore: boolean = false; // avoid “race conditions”: network responses may arrive in a different order than you sent them.
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      setErrorMsg(""); // reset error message state
-
-      try {
-        const geocode_json = await fetch_content(
-          `https://geocode.maps.co/search?q=${city}&api_key=${API_KEY}`
-        );
-        const importance_score: number = geocode_json[0]["importance"];
-
-        if (importance_score < THRESHOLD) {
-          setErrorMsg(`${city} not found. Please try your search again.`);
-          throw new Error("testing");
-        }
-
-        const [latitude, longtitude] = get_coordinates(geocode_json);
-
-        const endpoint_json = await fetch_content(
-          `https://api.weather.gov/points/${latitude},${longtitude}`
-        );
-        const forecast_url: string = endpoint_json["properties"]["forecast"];
-
-        const forecast_json = await fetch_content(forecast_url);
-
-        if (!ignore) {
-          const current_weather: IWeather[] =
-            forecast_json["properties"]["periods"];
-
-          console.log(current_weather);
-          setWeather(current_weather);
-        }
-      } catch (err: any) {
-        // setErrorMsg(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (city) {
-      fetchData();
-    }
-
-    /*Return cleanup function */
-    return () => {
-      ignore = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [city]);
-
-  return [weather, isLoading, errorMsg];
-}
+const retrieveWeather = async (
+  url: string,
+  setWeather: React.Dispatch<React.SetStateAction<IWeather[]>>
+) => {
+  const endpoint_json = await fetch_content(url);
+  const forecast_url: string = endpoint_json["properties"]["forecast"];
+  const forecast_json = await fetch_content(forecast_url);
+  const current_weather: IWeather[] = forecast_json["properties"]["periods"];
+  setWeather(current_weather);
+};
 
 function CitySubmitForm({ setCity }: FormProps): any {
   const handleSubmit = (event: React.FormEvent) => {
@@ -120,15 +75,33 @@ function CitySubmitForm({ setCity }: FormProps): any {
 
 export function WeatherComp() {
   const [city, setCity] = useState<string>("");
-  const [weather, isLoading, errorMsg] = useGetData(city);
+  const [weather_url, setWeatherUrl] = useState<string>("");
+  const [weather, setWeather] = useState<IWeather[]>([]);
 
-  if (isLoading) return <>Loading...</>;
+  const { error: geocode_error, isLoading: isGeocodeLoading } = useQuery(
+    ["city", city], //set key-value dependency. fetch executes when new value is defined
+    () =>
+      retrieveGeocodeUrl(
+        `https://geocode.maps.co/search?q=${city}&api_key=${API_KEY}`,
+        setWeatherUrl
+      ), // set as arrow function to allow input to function
+    { enabled: !!city } // only execute if city exists (aka not empty string in this case)
+  );
+
+  const { error: weather_error, isLoading: isWeatherLoading } = useQuery(
+    ["weather_url", weather_url],
+    () => retrieveWeather(weather_url, setWeather),
+    { enabled: !!weather_url }
+  );
+
+  if (isGeocodeLoading) return <>Loading Location Data...</>;
+  else if (isWeatherLoading) return <>Loading Weather...</>;
 
   return (
     <>
       <h1>7-Day Forecast</h1>
       <CitySubmitForm setCity={setCity} />
-      <WeatherResults errorMsg={errorMsg} city={city} weather={weather} />
+      <WeatherResults errorMsg={""} city={city} weather={weather} />
     </>
   );
 }
