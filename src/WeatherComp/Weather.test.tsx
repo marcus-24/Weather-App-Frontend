@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 import { WeatherComp, CitySubmitForm } from "./Weather";
 
+// jest.mock("./Weather/axios");
+
 const queryClient = new QueryClient();
 
 const MockWeatherComp = () => {
@@ -31,12 +33,15 @@ describe("Integration testing for WeatherComp", () => {
   // });
 
   test("Check that there are 7 days of forecast available", async () => {
-    // render(<MockWeatherComp />); //TODO: Add mock response from API.
-    // const inputElement = screen.getByPlaceholderText(/Enter city name/i);
-    // const buttonElement = screen.getByDisplayValue("Search");
-    // fireEvent.change(inputElement, { target: { value: "Boston" } });
-    // fireEvent.click(buttonElement);
-    // const divElements = screen.getAllByTestId("test-weather-box");
-    // expect(divElements.length).toBe(7);
+    render(<MockWeatherComp />); //TODO: Add mock response from API.
+    const inputElement = screen.getByPlaceholderText(/Enter city name/i);
+    const buttonElement = screen.getByDisplayValue("Search");
+    fireEvent.change(inputElement, { target: { value: "Boston" } });
+    fireEvent.click(buttonElement);
+    await waitFor(() => {
+      //@todo: Add mock api calls next
+      const divElements = screen.getAllByTestId("test-weather-box");
+      expect(divElements.length).toBe(7);
+    });
   });
 });
