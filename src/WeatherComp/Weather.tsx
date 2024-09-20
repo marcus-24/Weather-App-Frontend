@@ -1,7 +1,14 @@
-import React, { useState } from "react";
-import { IWeather, JSONObject, FormProps } from "../interfaces";
+import React, {
+  useState,
+  Dispatch,
+  SetStateAction,
+  FormEvent,
+  ReactElement,
+} from "react";
+import { IWeather, FormProps } from "../interfaces";
 import { WeatherResults } from "../WeatherResults";
 import { useQuery } from "react-query";
+import axios from "axios";
 
 // https://hackr.io/blog/react-projects
 // https://medium.com/@oadaramola/a-pitfall-i-almost-fell-into-d1d3461b2fb8
@@ -10,53 +17,42 @@ import { useQuery } from "react-query";
 const API_KEY: string | undefined = process.env.REACT_APP_GEOCODE_API_KEY;
 const THRESHOLD: number = 0.7;
 
-export async function fetch_content(url: string): Promise<JSONObject> {
-  const response = await fetch(url);
-  if (response.ok) {
-    return await response.json();
-  } else {
-    throw new Error(`Could not get data. Got ${response.status} status code`);
-  }
-}
+const retrieveLocationData = async (url: string) => {
+  const geocode_response = await axios.get(url);
+  const geocode_json = geocode_response.data[0]; //Get top match in the list of search results
 
-export function get_coordinates(geocode: JSONObject): Array<string> {
-  const latitude: string = geocode[0]["lat"];
-  const longtitude: string = geocode[0]["lon"];
+  const [latitude, longitude] = [geocode_json["lat"], geocode_json["lon"]];
 
-  return [latitude, longtitude];
-}
+  const result_city = geocode_json["display_name"].split(",")[0];
 
-const retrieveGeocodeUrl = async (
-  url: string,
-  setWeatherUrl: React.Dispatch<React.SetStateAction<string>>
-) => {
-  //todo: replace fetch with axios function.
-  const geocode_json = await fetch_content(url);
-
-  const [latitude, longitude] = get_coordinates(geocode_json);
   const weather_url: string = `https://api.weather.gov/points/${latitude},${longitude}`; // todo: make input to function
-  const importance_score: number = geocode_json[0]["importance"];
-  setWeatherUrl(importance_score > THRESHOLD ? weather_url : "");
+  const importance_score: number = geocode_json["importance"];
+
+  if (importance_score < THRESHOLD)
+    throw new Error(
+      "City not found. The results are below the matching threshold."
+    );
+
+  return { url: weather_url, city: result_city };
 };
 
-const retrieveWeather = async (
-  url: string,
-  setWeather: React.Dispatch<React.SetStateAction<IWeather[]>>
-) => {
-  const endpoint_json = await fetch_content(url);
-  const forecast_url: string = endpoint_json["properties"]["forecast"];
-  const forecast_json = await fetch_content(forecast_url);
-  const current_weather: IWeather[] = forecast_json["properties"]["periods"];
-  setWeather(current_weather);
+const retrieveWeather = async (url: string) => {
+  const endpoint_json = await axios.get(url);
+  const forecast_url: string = endpoint_json.data["properties"]["forecast"];
+  const forecast_json = await axios.get(forecast_url);
+  const current_weather: IWeather[] =
+    forecast_json.data["properties"]["periods"];
+
+  return current_weather;
 };
 
-function CitySubmitForm({ setCity }: FormProps): any {
-  const handleSubmit = (event: React.FormEvent) => {
+export function CitySubmitForm({ setSearchCity }: FormProps): any {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const city_val: string = (document.getElementById(
       "form-submit-text"
     ) as HTMLInputElement)!.value; // "!" shows you know that city element exists in DOM & need to cast as HTMLElement
-    setCity(city_val);
+    setSearchCity(city_val); //@todo: Use result from search to display weather
   };
 
   return (
@@ -74,34 +70,50 @@ function CitySubmitForm({ setCity }: FormProps): any {
 }
 
 export function WeatherComp() {
-  const [city, setCity] = useState<string>("");
-  const [weather_url, setWeatherUrl] = useState<string>("");
-  const [weather, setWeather] = useState<IWeather[]>([]);
+  const [search_city, setSearchCity] = useState<string>("");
 
-  const { error: geocode_error, isLoading: isGeocodeLoading } = useQuery(
-    ["city", city], //set key-value dependency. fetch executes when new value is defined
-    () =>
-      retrieveGeocodeUrl(
-        `https://geocode.maps.co/search?q=${city}&api_key=${API_KEY}`,
-        setWeatherUrl
-      ), // set as arrow function to allow input to function
-    { enabled: !!city } // only execute if city exists (aka not empty string in this case)
+  const intialData = { url: "", city: "" };
+  const {
+    data: loc_data,
+    isError: isLocError,
+    isLoading: isLoadingLoc,
+  } = useQuery({
+    queryKey: ["search_city", search_city],
+    queryFn: () =>
+      retrieveLocationData(
+        `https://geocode.maps.co/search?q=${search_city}&api_key=${API_KEY}`
+      ),
+    initialData: () => intialData,
+    enabled: !!search_city,
+  });
+
+  const {
+    data: weather,
+    isError: isWeatherError,
+    isLoading: isLoadingWeather,
+  } = useQuery(
+    ["weather_url", loc_data!.url],
+    () => retrieveWeather(loc_data!.url),
+    { enabled: !!loc_data!.url }
   );
 
-  const { error: weather_error, isLoading: isWeatherLoading } = useQuery(
-    ["weather_url", weather_url],
-    () => retrieveWeather(weather_url, setWeather),
-    { enabled: !!weather_url }
-  );
+  if (isLoadingLoc) return <>Finding matching cities....</>;
+  if (isLoadingWeather) return <>Getting weather....</>;
 
-  if (isGeocodeLoading) return <>Loading Location Data...</>;
-  else if (isWeatherLoading) return <>Loading Weather...</>;
+  let result: ReactElement = <></>;
+  if (isLocError) {
+    result = <>Can't find a matching city</>;
+  } else if (isWeatherError) {
+    result = <>Can't retrieve weather data</>;
+  } else if (weather) {
+    result = <WeatherResults city={loc_data!.city} weather={weather} />;
+  }
 
   return (
     <>
       <h1>7-Day Forecast</h1>
-      <CitySubmitForm setCity={setCity} />
-      <WeatherResults errorMsg={""} city={city} weather={weather} />
+      <CitySubmitForm setSearchCity={setSearchCity} />
+      {result}
     </>
   );
 }

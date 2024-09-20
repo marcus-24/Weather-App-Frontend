@@ -14,8 +14,6 @@ export function get_unique_dates(weather: IWeather[]): Array<string> {
 export function WeatherResults(props: StateProps): any {
   //todo: get type for return
 
-  if (props.errorMsg) <>{props.errorMsg}</>;
-
   if (!(props.weather && props.city)) return <></>;
 
   const unique_start_dates: Array<string> = get_unique_dates(props.weather);
@@ -23,10 +21,10 @@ export function WeatherResults(props: StateProps): any {
   let content: any = [];
 
   unique_start_dates.forEach((date) => {
-    let weather_vals: IWeather[] = props.weather.filter((item) =>
+    let weather_array: IWeather[] = props.weather.filter((item) =>
       item.startTime.includes(date)
     ); // get all IWeather objects with the same start dates (day and night values)
-    content.push(<DayElement vals={weather_vals} />);
+    content.push(<DayElement weather_array={weather_array} />);
   });
 
   return (

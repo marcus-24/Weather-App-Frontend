@@ -1,10 +1,11 @@
 import { IWeather } from "../interfaces";
 
-export function DayElement({ vals }: { vals: IWeather[] }) {
+export function DayElement({ weather_array }: { weather_array: IWeather[] }) {
+  // array has max length of 2 depending on day and night available
   return (
-    <div className="weather-box">
-      {vals.map((val) => (
-        <div className="imgContainer" key={val.name}>
+    <div className="weather-box" data-testid="test-weather-box">
+      {weather_array.map((val) => (
+        <figure className="imgContainer" key={val.name}>
           <img
             className="imgstyle"
             src={val.icon}
@@ -17,7 +18,7 @@ export function DayElement({ vals }: { vals: IWeather[] }) {
             </p>
             <p>{val.shortForecast}</p>
           </figcaption>
-        </div>
+        </figure>
       ))}
     </div>
   );

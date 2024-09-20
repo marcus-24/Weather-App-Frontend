@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface IWeather {
   detailedForecast: string;
   endTime: string;
@@ -22,11 +24,10 @@ export interface JSONObject {
 }
 
 export interface StateProps {
-  errorMsg: string;
   city: string;
   weather: IWeather[];
 }
 
 export interface FormProps {
-  setCity: React.Dispatch<React.SetStateAction<string>>;
+  setSearchCity: Dispatch<SetStateAction<string>>;
 }
