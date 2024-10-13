@@ -1,69 +1,28 @@
-.App {
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
   text-align: center;
+  font-family: Copperplate;
 }
 
-.App-header {
-  background-color: white;
-  min-height: 2vh;
+#submit-button {
+  border: none;
+  border-radius: 50px;
+}
+
+form * {
+  font-size: large;
+}
+
+.container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: black;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.App-section {
-  background-color: white;
-  min-height: 10vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: black;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-.weather-box {
-  border: solid darkblue;
-  border-radius: 25px;
-  box-shadow: 11px 11px 6px 3px lightblue;
-  width: 500px;
-  margin: 10px;
-  padding: 20px;
-}
-
-.weather-box {
-  display: flex;
-  float: center;
-}
-
-.imgstyle {
-  flex: 50%;
-  height: 200px;
-  border: solid white;
-  border-radius: 25px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.imgContainer {
-  /* @todo: Work on centering the image container. Slightly misaligned. */
-  max-width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 20px;
-}
-
-.captionstyle {
-  text-align: center;
-  line-height: 90%;
-  font-family: "Rockwell", Verdana, sans-serif;
-}
-
-#form-submit-text {
-  color: gray;
+.weather-item {
+  box-shadow: rgba(0, 205, 241, 1);
+  width: 70%;
+  border: 2px solid black;
 }
