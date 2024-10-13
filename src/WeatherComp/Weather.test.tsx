@@ -1,5 +1,11 @@
 import React from "react";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { WeatherComp, CitySubmitForm } from "./Weather";
