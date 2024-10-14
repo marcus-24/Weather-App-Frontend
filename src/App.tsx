@@ -1,6 +1,10 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 // import { useQuery } from "react-query";
-// import { IWeather } from "./interfaces";
+import { SearchProps, ILocation, IOption } from "./interfaces";
+import AsyncSelect from "react-select/async";
+// import { SingleValue } from "react-select";
+// import makeAnimated from "react-select/animated";
+import axios from "axios";
 import "./App.css";
 
 const weatherList = [
@@ -25,31 +29,50 @@ function Header() {
   );
 }
 
-function App() {
-  // const [weatherList, setWeatherList] = useState<IWeather[]>([]); // place holder until I use react-query
-  const [city, setCity] = useState("");
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
+function AsyncSearchBar({ setCity }: SearchProps): any {
+  // https://dev.to/wlytle/implementing-a-searchable-async-dropdown-in-react-5hce
+  const [query, setQuery] = useState<string>("");
+
+  // fetch filteres search results for dropdown
+  const loadOptions = async (): Promise<IOption[]> => {
+    return axios
+      .get(`http://localhost:4000/weather-locs/${query}`)
+      .then((resp) => {
+        return resp.data.map((loc: ILocation) => ({
+          value: loc.display_name,
+          label: loc.display_name,
+        }));
+      });
   };
-  const handleChange = (event: FormEvent) => {
-    const casted_target = event.target as HTMLInputElement;
-    setCity(casted_target.value);
+
+  //get animated components wrapper
+  // const animatedComponents = makeAnimated();
+
+  const handleChange = (value: IOption | null) => {
+    const city = value!.label;
+    setCity(city);
   };
 
   return (
     <>
+      <AsyncSelect
+        cacheOptions
+        loadOptions={loadOptions}
+        onInputChange={(value) => setQuery(value)}
+        onChange={handleChange}
+      />
+    </>
+  );
+}
+
+function App() {
+  // const [weatherList, setWeatherList] = useState<IWeather[]>([]); // place holder until I use react-query
+  const [city, setCity] = useState<string>("");
+
+  return (
+    <>
       <Header />
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={city}
-          id="form-submit-text"
-          name="form-submit-text"
-          placeholder="Enter city name"
-          onChange={handleChange}
-        />
-        <input id="submit-button" type="submit" value="Search" />
-      </form>
+      <AsyncSearchBar setCity={setCity} />
       <h1>{city}</h1>
       <div className="container" id="column">
         {weatherList.map((weather) => (

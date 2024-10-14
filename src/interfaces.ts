@@ -17,6 +17,19 @@ export interface IWeather {
   windSpeed: string;
 }
 
+export interface ILocation {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+  importance: number;
+}
+
+export interface IOption {
+  label: string;
+  value: string;
+}
+
 type JSONValue = string | number | boolean | JSONObject | any;
 
 export interface JSONObject {
@@ -28,6 +41,6 @@ export interface StateProps {
   weather: IWeather[];
 }
 
-export interface FormProps {
-  setSearchCity: Dispatch<SetStateAction<string>>;
+export interface SearchProps {
+  setCity: Dispatch<SetStateAction<string>>;
 }
