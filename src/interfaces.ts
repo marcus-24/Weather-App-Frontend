@@ -44,3 +44,8 @@ export interface StateProps {
 export interface SearchProps {
   setCity: Dispatch<SetStateAction<string>>;
 }
+
+export interface ResultProps {
+  city: string;
+  baseUrl: string;
+}
