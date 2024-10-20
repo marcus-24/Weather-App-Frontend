@@ -1,5 +1,4 @@
 #root {
-  /* max-width: 1280px; */
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -20,13 +19,13 @@ form * {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  width: 90%;
   margin-top: 100px;
 }
 
 .weather-item {
   display: flex;
   justify-content: space-evenly;
-  width: 30%;
   background-color: rgb(77, 237, 255);
   box-shadow: 10px 5px 5px rgba(58, 241, 251, 0.5);
   border-radius: 20px;
@@ -36,7 +35,7 @@ form * {
 
 .weather-item:hover {
   box-shadow: 10px 5px 5px rgba(236, 240, 2, 0.5);
-  transform: scale(2);
+  /* transform: scale(1.5); */
   cursor: pointer;
 }
 

@@ -49,3 +49,8 @@ export interface ResultProps {
   city: string;
   baseUrl: string;
 }
+
+export interface WeatherItemProps {
+  formattedDate: string;
+  weatherDay: IWeather[];
+}

@@ -18,7 +18,6 @@ export function AsyncSearchBar({ setCity }: SearchProps): ReactElement {
     clearTimeout(timeoutId); //setting timeout to wait to send API request 1 second after user stops typing
 
     const newTimeoutId = setTimeout(() => {
-      console.log(`API called with ${inputValue} as input`);
       axios.get(`${API_URL}/cities/${inputValue}`).then((resp) => {
         const options = resp.data.map((loc: ILocation) => ({
           value: loc.display_name,
