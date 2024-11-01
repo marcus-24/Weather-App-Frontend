@@ -4,7 +4,7 @@ import { ShowResults } from "./components/ShowResults";
 
 import "./App.css";
 
-const API_URL: string = "http://localhost:4000";
+const BACKEND_URL: string = import.meta.env.VITE_BACKEND_URL; //need to have "VITE" prefix env variables and use this import method instead
 
 function Header(): ReactElement {
   return (
@@ -24,8 +24,8 @@ function App() {
   return (
     <>
       <Header />
-      <AsyncSearchBar setCity={setCity} />
-      <ShowResults city={city} baseUrl={API_URL} />
+      <AsyncSearchBar setCity={setCity} backendUrl={BACKEND_URL} />
+      <ShowResults city={city} backendUrl={BACKEND_URL} />
     </>
   );
 }

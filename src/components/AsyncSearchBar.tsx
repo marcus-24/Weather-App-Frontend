@@ -3,22 +3,24 @@ import { SearchProps, ILocation, IOption } from "../interfaces";
 import AsyncSelect from "react-select/async";
 import axios from "axios";
 
-const API_URL: string = "http://localhost:4000";
-
-export function AsyncSearchBar({ setCity }: SearchProps): ReactElement {
+export function AsyncSearchBar({
+  setCity,
+  backendUrl,
+}: SearchProps): ReactElement {
   // https://dev.to/wlytle/implementing-a-searchable-async-dropdown-in-react-5hce
 
-  const [timeoutId, setTimeoutId] = useState<number>();
+  const [timeoutId, setTimeoutId] = useState<number>(0);
 
   // fetch filters search results for dropdown
   const loadOptions = (
     inputValue: string,
     callback: (options: IOption[]) => void
   ) => {
-    clearTimeout(timeoutId); //setting timeout to wait to send API request 1 second after user stops typing
+    // Need to explicitly use the "window" version fo setTimeout to avoid confusion between NodeJs and browser versions
+    window.clearTimeout(timeoutId); //setting timeout to wait to send API request 1 second after user stops typing
 
-    const newTimeoutId = setTimeout(() => {
-      axios.get(`${API_URL}/cities/${inputValue}`).then((resp) => {
+    const newTimeoutId = window.setTimeout(() => {
+      axios.get(`${backendUrl}/cities/${inputValue}`).then((resp) => {
         const options = resp.data.map((loc: ILocation) => ({
           value: loc.display_name,
           label: loc.display_name,

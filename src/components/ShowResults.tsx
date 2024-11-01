@@ -17,7 +17,7 @@ function formatDate(val: IWeather, options: any = DEFAULTDATEOPTIONS): string {
 
 function WeatherContainer({ weatherList }: { weatherList: IWeather[] }) {
   const groupedWeather = Object.groupBy(weatherList, formatDate);
-  // console.log(groupedWeather);
+
   return (
     <div className="container" id="column">
       {Object.entries(groupedWeather).map((val) => (
@@ -27,7 +27,7 @@ function WeatherContainer({ weatherList }: { weatherList: IWeather[] }) {
   );
 }
 
-function WeatherItem({
+export function WeatherItem({
   formattedDate,
   weatherDay,
 }: WeatherItemProps): ReactElement {
@@ -43,7 +43,7 @@ function WeatherItem({
   );
 }
 
-function WeatherFigure({ val }: { val: IWeather }) {
+export function WeatherFigure({ val }: { val: IWeather }): ReactElement {
   return (
     <figure className="img-container">
       <img src={val.icon} alt={`Forecast for ${val.name}`} />
@@ -58,8 +58,8 @@ function WeatherFigure({ val }: { val: IWeather }) {
   );
 }
 
-export function ShowResults({ city, baseUrl }: ResultProps): ReactElement {
-  const url = `${baseUrl}/cities/${city}/weather-data`;
+export function ShowResults({ city, backendUrl }: ResultProps): ReactElement {
+  const url = `${backendUrl}/cities/${city}/weather-data`;
   const { status, data: weatherList } = useQuery({
     queryKey: ["city", city],
     queryFn: () => retrieveWeather(url),

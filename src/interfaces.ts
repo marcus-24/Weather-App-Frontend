@@ -43,11 +43,12 @@ export interface StateProps {
 
 export interface SearchProps {
   setCity: Dispatch<SetStateAction<string>>;
+  backendUrl: string;
 }
 
 export interface ResultProps {
   city: string;
-  baseUrl: string;
+  backendUrl: string;
 }
 
 export interface WeatherItemProps {

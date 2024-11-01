@@ -31,6 +31,7 @@ form * {
   border-radius: 20px;
   height: auto;
   border: 1px solid white;
+  width: 30%;
 }
 
 .weather-item:hover {
