@@ -1,5 +1,6 @@
-import { DayElement } from "./DayElement";
-import { IWeather } from "../interfaces";
+import { describe, expect, test, beforeEach, afterEach } from "vitest";
+import { WeatherFigure } from "../../components/ShowResults";
+import { IWeather } from "../../interfaces";
 import { render, screen, cleanup } from "@testing-library/react";
 
 function createEmptyWeatherData(): IWeather {
@@ -20,11 +21,10 @@ function createEmptyWeatherData(): IWeather {
   };
 }
 
-describe("Testing DayElement component", () => {
+describe("Test Weather Figure Component", () => {
   beforeEach(() => {
-    //TODO: Make weather input unique for each test
-    const weather: IWeather[] = [createEmptyWeatherData()];
-    render(<DayElement weather_array={weather} />);
+    const weather: IWeather = createEmptyWeatherData();
+    render(<WeatherFigure val={weather} />);
   });
 
   afterEach(() => {
