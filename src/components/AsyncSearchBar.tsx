@@ -26,7 +26,7 @@ export function AsyncSearchBar({
           label: loc.display_name,
         }));
 
-        callback(options);
+        callback(options); // provide fetched options to AsyncSelect component
       });
     }, 1000);
 

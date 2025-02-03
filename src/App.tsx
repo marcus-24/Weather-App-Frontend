@@ -11,8 +11,10 @@ function Header(): ReactElement {
     <header>
       <h1>Weather Forecast React Application</h1>
       <h2>
-        The purpose of this site is to learn how to use React JS, Express JS and
-        Node JS to retrieve weather data and display it to the site visitors.
+        This site displays the forecast of the selected city entered in the
+        search bar below. It is powered by the ReactJS Framework to generate the
+        webpage and NodeJS with ExpressJS to search for the weather forecast
+        results.
       </h2>
     </header>
   );
