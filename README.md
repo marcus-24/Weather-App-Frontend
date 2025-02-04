@@ -6,9 +6,7 @@ https://weather-app-frontend-n47l.onrender.com
 
 **Please be aware that I'm using the free version of Render, so the website will take a couple of minutes to generate the search results since the backend needs to be restarted.**
 
-The backend code (powered by ExpressJS) that processes the users requests is in my respository link below.
-
-https://github.com/marcus-24/Weather-App-Backend
+The backend code (powered by ExpressJS) that processes the users requests can be found at <a href="https://github.com/marcus-24/Weather-App-Backend">Weather-App-Backend</a>.
 
 ## React + TypeScript + Vite
 
